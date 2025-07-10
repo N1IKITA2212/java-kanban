@@ -1,10 +1,12 @@
+package model;
+
 import java.util.Objects;
 
 public class Task {
-    private String name;
-    private String description;
-    private int id;
-    protected Status status; // поле protected для изменения его значения в Эпике
+    protected String name;
+    protected String description;
+    protected int id;
+    protected Status status;
 
     public String getName() {
         return name;
@@ -55,22 +57,18 @@ public class Task {
         if (o == null || getClass() != o.getClass()) return false;
 
         Task task = (Task) o;
-        return id == task.id && Objects.equals(name, task.name) && Objects.equals(description, task.description) && status == task.status;
+        return id == task.id;
     }
 
     @Override
     public int hashCode() {
-        int result = Objects.hashCode(name);
-        result = 31 * result + Objects.hashCode(description);
-        result = 31 * result + id;
-        result = 31 * result + Objects.hashCode(status);
-        return result;
+        return Objects.hash(id);
     }
 
-    // ToString() для теста в Main
+
     @Override
     public String toString() {
-        return "Task{" +
+        return "model.Task{" +
                 "name='" + name + '\'' +
                 ", description='" + description + '\'' +
                 ", id=" + id +
