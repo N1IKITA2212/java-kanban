@@ -1,7 +1,6 @@
-package model;
+package ru.practicum.model;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 
 public class Epic extends Task {
     private ArrayList<SubTask> subTasks = new ArrayList<>(); // Мапа <id, subTask> в каждом эпике
@@ -14,6 +13,11 @@ public class Epic extends Task {
         super(name, description);
     }
 
+    public Epic(String name, String description, int id) { // Конструктор для теста в Main, статус не передаем, он считается по подзадачам
+        super(name, description);
+        this.id = id;
+    }
+
     public void addSubTask(SubTask subTask) {
         subTasks.add(subTask);
         updateStatus();
@@ -24,7 +28,12 @@ public class Epic extends Task {
         updateStatus();
     }
 
-    public void updateStatus() {
+    public void removeAllSubtasks() {
+        subTasks.clear();
+        updateStatus();
+    }
+
+    private void updateStatus() {
         boolean isAnyInProgress = false;
         boolean isAllNew = true;
 

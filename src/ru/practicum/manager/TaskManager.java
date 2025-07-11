@@ -1,6 +1,6 @@
-package manager;
+package ru.practicum.manager;
 
-import model.*;
+import ru.practicum.model.*;
 import java.util.ArrayList;
 import java.util.HashMap;
 
@@ -63,14 +63,14 @@ public class TaskManager {
     }
 
     public void updateTask(Task task) {
-        if (!isIdValid(task.getId(), tasks)) {
+        if (!tasks.containsKey(task.getId())) {
             return;
         }
         tasks.put(task.getId(), task);
     }
 
     public void updateSubTask(SubTask subTask) {
-        if (!isIdValid(subTask.getId(), subTasks)) {
+        if (!subTasks.containsKey(subTask.getId())) {
             return;
         }
         subTasks.put(subTask.getId(), subTask);
@@ -82,7 +82,7 @@ public class TaskManager {
     }
 
     public void updateEpic(Epic epic) {
-        if (!isIdValid(epic.getId(), epics)) {
+        if (!epics.containsKey(epic.getId())) {
             return;
         }
         Epic oldEpic = epics.get(epic.getId());
@@ -91,14 +91,14 @@ public class TaskManager {
     }
 
     public void removeTask(int taskId) {
-        if (!isIdValid(taskId, tasks)) {
+        if (!tasks.containsKey(taskId)) {
             return;
         }
         tasks.remove(taskId);
     }
 
     public void removeSubTask(int subTaskId) {
-        if (!isIdValid(subTaskId, subTasks)) {
+        if (!subTasks.containsKey(subTaskId)) {
             return;
         }
         int epicId = subTasks.get(subTaskId).getEpicId();
@@ -107,7 +107,7 @@ public class TaskManager {
     }
 
     public void removeEpic(int epicId) {
-        if (!isIdValid(epicId, epics)) {
+        if (!epics.containsKey(epicId)) {
             return;
         }
         for (SubTask subTask : epics.get(epicId).getSubTasks()) { // Удаление всех подзадач удаляемого эпика из общего хранилища
@@ -117,14 +117,10 @@ public class TaskManager {
     }
 
     public ArrayList<SubTask> getSubTasksByEpic(int epicId) {
-        if (!isIdValid(epicId, epics)) {
+        if (!epics.containsKey(epicId)) {
             return null;
         }
         return epics.get(epicId).getSubTasks();
-    }
-
-    public <T extends  Task> boolean isIdValid(int id, HashMap<Integer, T> tasks) {
-        return tasks.containsKey(id);
     }
 
     public void deleteTasks() {
@@ -132,10 +128,14 @@ public class TaskManager {
     }
 
     public void deleteSubTasks() {
+        for (Epic epic : epics.values()) {
+            epic.removeAllSubtasks();
+        }
         subTasks.clear();
     }
 
     public void deleteEpics() {
         epics.clear();
+        subTasks.clear();
     }
 }
