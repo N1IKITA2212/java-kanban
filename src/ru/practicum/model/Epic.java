@@ -1,11 +1,12 @@
 package ru.practicum.model;
 
 import java.util.ArrayList;
+import java.util.List;
 
 public class Epic extends Task {
-    private ArrayList<SubTask> subTasks = new ArrayList<>(); // Мапа <id, subTask> в каждом эпике
+    private final List<SubTask> subTasks = new ArrayList<>();
 
-    public ArrayList<SubTask> getSubTasks() {
+    public List<SubTask> getSubTasks() {
         return subTasks;
     }
 

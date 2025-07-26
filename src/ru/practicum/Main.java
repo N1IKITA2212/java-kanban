@@ -5,10 +5,12 @@ import ru.practicum.manager.Managers;
 import ru.practicum.manager.TaskManager;
 import ru.practicum.model.*;
 
+import java.util.List;
+
 public class Main {
     public static void main(String[] args) {
         TaskManager inMemoryTaskManager = Managers.getDefault();
-        HistoryManager historyManager = inMemoryTaskManager.getHistoryManager();
+
         int taskId1 = inMemoryTaskManager.createTask(new Task("Посетить врача", "Нужно сходить к зубному вылечить зуб"));
         int taskId2 = inMemoryTaskManager.createTask(new Task("Поесть", "Приготовить суп"));
         int epicId1 = inMemoryTaskManager.createEpic(new Epic("Переезд", "Уезжаю в новый дом"));
@@ -25,7 +27,7 @@ public class Main {
         System.out.println(inMemoryTaskManager.getEpicById(epicId1));
 
         System.out.println("История:");
-        for (Task task : historyManager.getHistory()) {
+        for (Task task : inMemoryTaskManager.getHistory()) {
             System.out.println(task);
         }
 
