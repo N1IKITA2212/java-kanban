@@ -5,6 +5,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import ru.practicum.manager.HistoryManager;
 import ru.practicum.manager.InMemoryHistoryManager;
+import ru.practicum.model.Status;
 import ru.practicum.model.Task;
 
 public class InMemoryHistoryManagerTest {
@@ -28,5 +29,28 @@ public class InMemoryHistoryManagerTest {
         Assertions.assertEquals(task.getName(), savedTask.getName(), "Имена задач не совпадают");
         Assertions.assertEquals(task.getDescription(), savedTask.getDescription(), "Описания задач не совпадают");
         Assertions.assertEquals(task.getStatus(), savedTask.getStatus(), "Статус задач не совпадает");
+    }
+
+    @Test
+    public void historyShouldNotContainRepeats() {
+        Task task1 = new Task("Название", "Описание", 1, Status.NEW);
+        Task task2 = new Task("Название1", "Описание1", 2, Status.NEW);
+        inMemoryHistoryManager.add(task1);
+        inMemoryHistoryManager.add(task2);
+        inMemoryHistoryManager.add(task1);
+
+        Assertions.assertEquals(2, inMemoryHistoryManager.getHistory().size(), "Длины списков не совпадают");
+    }
+
+    @Test
+    public void inMemoryHistoryManagerRemoveTask() {
+        Task task1 = new Task("Название", "Описание", 1, Status.NEW);
+        Task task2 = new Task("Название1", "Описание1", 2, Status.NEW);
+        inMemoryHistoryManager.add(task1);
+        inMemoryHistoryManager.add(task2);
+        inMemoryHistoryManager.remove(1);
+
+        Assertions.assertEquals(1, inMemoryHistoryManager.getHistory().size());
+        Assertions.assertEquals(task2, inMemoryHistoryManager.getHistory().getFirst());
     }
 }
