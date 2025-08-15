@@ -1,11 +1,10 @@
 package ru.practicum;
 
-import ru.practicum.manager.HistoryManager;
 import ru.practicum.manager.Managers;
 import ru.practicum.manager.TaskManager;
 import ru.practicum.model.*;
 
-import java.util.List;
+
 
 public class Main {
     public static void main(String[] args) {

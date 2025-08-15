@@ -116,6 +116,7 @@ public class InMemoryTaskManager implements TaskManager {
             return;
         }
         tasks.remove(taskId);
+        historyManager.remove(taskId);
     }
 
     @Override
@@ -124,8 +125,9 @@ public class InMemoryTaskManager implements TaskManager {
             return;
         }
         int epicId = subTasks.get(subTaskId).getEpicId();
-        epics.get(epicId).removeSubTask(subTasks.get(subTaskId)); //Удаление сабтаски из мапы эпика
-        subTasks.remove(subTaskId); //Удаление сабтаски из общей мапы
+        epics.get(epicId).removeSubTask(subTasks.get(subTaskId)); //Удаление подзадачи из мапы эпика
+        subTasks.remove(subTaskId); //Удаление подзадачи из общей мапы
+        historyManager.remove(subTaskId);
     }
 
     @Override
@@ -135,8 +137,10 @@ public class InMemoryTaskManager implements TaskManager {
         }
         for (SubTask subTask : epics.get(epicId).getSubTasks()) { // Удаление всех подзадач удаляемого эпика из общего хранилища
             subTasks.remove(subTask.getId());
+            historyManager.remove(subTask.getId());
         }
         epics.remove(epicId);
+        historyManager.remove(epicId);
     }
 
     @Override
@@ -149,6 +153,9 @@ public class InMemoryTaskManager implements TaskManager {
 
     @Override
     public void deleteTasks() {
+        for (Task task : tasks.values()) {
+            historyManager.remove(task.getId());
+        }
         tasks.clear();
     }
 
@@ -157,11 +164,20 @@ public class InMemoryTaskManager implements TaskManager {
         for (Epic epic : epics.values()) {
             epic.removeAllSubtasks();
         }
+        for (SubTask subTask : subTasks.values()) {
+            historyManager.remove(subTask.getId());
+        }
         subTasks.clear();
     }
 
     @Override
     public void deleteEpics() {
+        for (Epic epic : epics.values()) {
+            historyManager.remove(epic.getId());
+        }
+        for (SubTask subTask : subTasks.values()) {
+            historyManager.remove(subTask.getId());
+        }
         epics.clear();
         subTasks.clear();
     }

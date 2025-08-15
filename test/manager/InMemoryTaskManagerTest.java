@@ -6,6 +6,8 @@ import org.junit.jupiter.api.Test;
 import ru.practicum.manager.*;
 import ru.practicum.model.*;
 
+import java.util.List;
+
 public class InMemoryTaskManagerTest {
     TaskManager inMemoryTaskManager;
 
@@ -73,6 +75,10 @@ public class InMemoryTaskManagerTest {
         Assertions.assertEquals(subTask.getDescription(), savedSubTask.getDescription(), "Описания эпиков не совпадают");
         Assertions.assertEquals(Status.NEW, savedSubTask.getStatus(), "Статусы не совпадают");
         Assertions.assertEquals(subTaskId, savedSubTask.getId(), "id не совпадают");
+
+        SubTask subTask1 = new SubTask("Описание", "Название", 33);
+        int subTaskId1 = inMemoryTaskManager.createSubTask(subTask1);
+        Assertions.assertEquals(-1, subTaskId1);
     }
 
     @Test
@@ -85,5 +91,85 @@ public class InMemoryTaskManagerTest {
         Task savedTask = inMemoryTaskManager.getTaskById(taskId);
         Assertions.assertNotNull(savedTask, "Задача не сохранилась");
         Assertions.assertEquals(newTask, savedTask, "Обновление задачи не выполнилось");
+    }
+
+    @Test
+    public void getTaskShouldNotAddRepeatsToHistory() {
+        Task task = new Task("Название", "Описание");
+        int taskId = inMemoryTaskManager.createTask(task);
+
+        inMemoryTaskManager.getTaskById(taskId);
+        inMemoryTaskManager.getTaskById(taskId);
+        inMemoryTaskManager.getTasks();
+
+        Assertions.assertEquals(1,inMemoryTaskManager.getHistory().size());
+        Assertions.assertEquals(task, inMemoryTaskManager.getHistory().getFirst());
+    }
+
+    @Test
+    public void removeTaskShouldRemoveTaskFromHistory() {
+        Task task = new Task("Название", "Описание");
+        Task task1 = new Task("Название1", "Описание1");
+        int taskId = inMemoryTaskManager.createTask(task);
+        int taskId1 = inMemoryTaskManager.createTask(task1);
+
+        inMemoryTaskManager.getTaskById(taskId);
+        inMemoryTaskManager.getTaskById(taskId1);
+
+        Assertions.assertEquals(2, inMemoryTaskManager.getHistory().size());
+
+        inMemoryTaskManager.removeTask(taskId);
+
+        Assertions.assertEquals(1, inMemoryTaskManager.getHistory().size());
+        Assertions.assertEquals(task1, inMemoryTaskManager.getHistory().getFirst());
+    }
+
+    @Test
+    public void getSubTaskByEpic() {
+        Epic epic = new Epic("Описание", "Название");
+        int epicId = inMemoryTaskManager.createEpic(epic);
+
+        SubTask subTask = new SubTask("Описание", "Название",epicId);
+        SubTask subTask1 = new SubTask("Описание1", "Название1",epicId);
+        int subTaskId = inMemoryTaskManager.createSubTask(subTask);
+        int subTaskId1 = inMemoryTaskManager.createSubTask(subTask1);
+
+        Assertions.assertTrue(inMemoryTaskManager.getEpicById(epicId).getSubTasks().contains(subTask));
+        Assertions.assertTrue(inMemoryTaskManager.getEpicById(epicId).getSubTasks().contains(subTask1));
+
+        inMemoryTaskManager.removeSubTask(subTaskId);
+
+        Assertions.assertFalse(inMemoryTaskManager.getEpicById(epicId).getSubTasks().contains(subTask));
+        Assertions.assertTrue(inMemoryTaskManager.getEpicById(epicId).getSubTasks().contains(subTask1));
+    }
+
+    @Test
+    public void getHistoryTestWithGetById() {
+        Task task = new Task("Название", "Описание");
+        Task task1 = new Task("Название1", "Описание1");
+        int taskId = inMemoryTaskManager.createTask(task);
+        int taskId1 = inMemoryTaskManager.createTask(task1);
+        Epic epic = new Epic("Описание", "Название");
+        int epicId = inMemoryTaskManager.createEpic(epic);
+
+        SubTask subTask = new SubTask("Описание", "Название",epicId);
+        SubTask subTask1 = new SubTask("Описание1", "Название1",epicId);
+        int subTaskId = inMemoryTaskManager.createSubTask(subTask);
+        int subTaskId1 = inMemoryTaskManager.createSubTask(subTask1);
+
+        inMemoryTaskManager.getTaskById(taskId);
+        inMemoryTaskManager.getTaskById(taskId1);
+        inMemoryTaskManager.getEpicById(epicId);
+        inMemoryTaskManager.getSubTaskById(subTaskId);
+        inMemoryTaskManager.getSubTaskById(subTaskId1);
+
+        List<Task> history = inMemoryTaskManager.getHistory();
+
+        Assertions.assertEquals(5, history.size());
+        Assertions.assertEquals(task, history.getFirst());
+        Assertions.assertEquals(subTask1, history.getLast());
+        Assertions.assertEquals(epic, history.get(2));
+
+
     }
 }
