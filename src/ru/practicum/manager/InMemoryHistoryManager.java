@@ -13,12 +13,10 @@ public class InMemoryHistoryManager implements HistoryManager {
     private Node last;
 
     private void linkLast(Task task) { //Добавляем элемент в конец списка и меняем ссылки last и first(при отсутствии first ранее)
-        Node newLast;
+        Node newLast = new Node(task, last, null);
         if (first == null) { // Если список пустой, то добавляется так
-            newLast = new Node(task, null, null);
             first = newLast;
         } else {
-            newLast = new Node(task, last, null);
             last.next = newLast;
         }
         last = newLast;
@@ -27,8 +25,10 @@ public class InMemoryHistoryManager implements HistoryManager {
 
     private List<Task> getTasks() {
         List<Task> tasks = new ArrayList<>();
-        for (Node node : history.values()) {
-            tasks.add(node.task);
+        Node next = first;
+        while (next != null) {
+            tasks.add(next.task);
+            next = next.next;
         }
         return tasks;
     }

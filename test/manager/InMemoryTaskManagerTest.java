@@ -6,6 +6,8 @@ import org.junit.jupiter.api.Test;
 import ru.practicum.manager.*;
 import ru.practicum.model.*;
 
+import java.util.List;
+
 public class InMemoryTaskManagerTest {
     TaskManager inMemoryTaskManager;
 
@@ -139,5 +141,35 @@ public class InMemoryTaskManagerTest {
 
         Assertions.assertFalse(inMemoryTaskManager.getEpicById(epicId).getSubTasks().contains(subTask));
         Assertions.assertTrue(inMemoryTaskManager.getEpicById(epicId).getSubTasks().contains(subTask1));
+    }
+
+    @Test
+    public void getHistoryTestWithGetById() {
+        Task task = new Task("Название", "Описание");
+        Task task1 = new Task("Название1", "Описание1");
+        int taskId = inMemoryTaskManager.createTask(task);
+        int taskId1 = inMemoryTaskManager.createTask(task1);
+        Epic epic = new Epic("Описание", "Название");
+        int epicId = inMemoryTaskManager.createEpic(epic);
+
+        SubTask subTask = new SubTask("Описание", "Название",epicId);
+        SubTask subTask1 = new SubTask("Описание1", "Название1",epicId);
+        int subTaskId = inMemoryTaskManager.createSubTask(subTask);
+        int subTaskId1 = inMemoryTaskManager.createSubTask(subTask1);
+
+        inMemoryTaskManager.getTaskById(taskId);
+        inMemoryTaskManager.getTaskById(taskId1);
+        inMemoryTaskManager.getEpicById(epicId);
+        inMemoryTaskManager.getSubTaskById(subTaskId);
+        inMemoryTaskManager.getSubTaskById(subTaskId1);
+
+        List<Task> history = inMemoryTaskManager.getHistory();
+
+        Assertions.assertEquals(5, history.size());
+        Assertions.assertEquals(task, history.getFirst());
+        Assertions.assertEquals(subTask1, history.getLast());
+        Assertions.assertEquals(epic, history.get(2));
+
+
     }
 }
