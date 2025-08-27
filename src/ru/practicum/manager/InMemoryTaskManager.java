@@ -1,6 +1,9 @@
 package ru.practicum.manager;
 
-import ru.practicum.model.*;
+import ru.practicum.model.Epic;
+import ru.practicum.model.Status;
+import ru.practicum.model.SubTask;
+import ru.practicum.model.Task;
 
 import java.util.*;
 
@@ -28,6 +31,7 @@ public class InMemoryTaskManager implements TaskManager {
     public List<Epic> getEpics() {
         return new ArrayList<>(epics.values());
     }
+
     //Метод для получения листа всех задач в менеджере
     public List<Task> getAllTasks() {
         List<Task> all = new ArrayList<>();
