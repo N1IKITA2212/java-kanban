@@ -12,30 +12,6 @@ public class FileBackedTaskManager extends InMemoryTaskManager implements TaskMa
         savedFile = file;
     }
 
-    private void save() {
-        try (Writer fileWriter = new FileWriter(savedFile, StandardCharsets.UTF_8)) {
-            // Первой строкой запишем заголовок типа id,type,name,status,description,epic
-            for (Fields field : Fields.values()) {
-                fileWriter.write(String.format("%s,", field.toString()));
-            }
-            fileWriter.write(System.lineSeparator());
-            for (Task task : getTasks()) {
-                fileWriter.write(task.toString());
-                fileWriter.write(System.lineSeparator());
-            }
-            for (Epic epic : getEpics()) {
-                fileWriter.write(epic.toString());
-                fileWriter.write(System.lineSeparator());
-            }
-            for (SubTask subTask : getSubTasks()) {
-                fileWriter.write(subTask.toString());
-                fileWriter.write(System.lineSeparator());
-            }
-        } catch (IOException e) {
-            throw new ManagerSaveException();
-        }
-    }
-
     public static FileBackedTaskManager loadFromFile(File file) {
         FileBackedTaskManager fileBackedTaskManager = new FileBackedTaskManager(file);
         try (BufferedReader reader = new BufferedReader(new FileReader(file, StandardCharsets.UTF_8))) {
@@ -67,6 +43,30 @@ public class FileBackedTaskManager extends InMemoryTaskManager implements TaskMa
             throw new ManagerLoadException();
         }
         return fileBackedTaskManager;
+    }
+
+    private void save() {
+        try (Writer fileWriter = new FileWriter(savedFile, StandardCharsets.UTF_8)) {
+            // Первой строкой запишем заголовок типа id,type,name,status,description,epic
+            for (Fields field : Fields.values()) {
+                fileWriter.write(String.format("%s,", field.toString()));
+            }
+            fileWriter.write(System.lineSeparator());
+            for (Task task : getTasks()) {
+                fileWriter.write(task.toString());
+                fileWriter.write(System.lineSeparator());
+            }
+            for (Epic epic : getEpics()) {
+                fileWriter.write(epic.toString());
+                fileWriter.write(System.lineSeparator());
+            }
+            for (SubTask subTask : getSubTasks()) {
+                fileWriter.write(subTask.toString());
+                fileWriter.write(System.lineSeparator());
+            }
+        } catch (IOException e) {
+            throw new ManagerSaveException();
+        }
     }
 
     @Override

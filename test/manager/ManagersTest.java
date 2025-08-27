@@ -1,10 +1,10 @@
 package manager;
 
 import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import ru.practicum.manager.*;
-import ru.practicum.model.Task;
+import ru.practicum.manager.HistoryManager;
+import ru.practicum.manager.Managers;
+import ru.practicum.manager.TaskManager;
 
 public class ManagersTest {
 

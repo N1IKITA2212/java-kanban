@@ -5,11 +5,9 @@ import java.util.List;
 
 public class Epic extends Task {
     private final List<SubTask> subTasks = new ArrayList<>();
+
     {
         type = TaskType.EPIC;
-    }
-    public List<SubTask> getSubTasks() {
-        return subTasks;
     }
 
     public Epic(String name, String description) {
@@ -20,9 +18,19 @@ public class Epic extends Task {
         super(name, description);
         this.id = id;
     }
+
     //Конструктор для создания эпика из строки, используется в классе FileBackedTaskManager
     private Epic(String name, String description, int id, Status status) {
         super(name, description, id, status);
+    }
+
+    public static Epic fromString(String line) {
+        String[] fields = line.split(",");
+        return new Epic(fields[2], fields[4], Integer.parseInt(fields[0]), Status.valueOf(fields[3]));
+    }
+
+    public List<SubTask> getSubTasks() {
+        return subTasks;
     }
 
     public void addSubTask(SubTask subTask) {
@@ -64,10 +72,5 @@ public class Epic extends Task {
     @Override
     public String toString() {
         return super.toString();
-    }
-
-    public static Epic fromString(String line) {
-        String[] fields = line.split(",");
-        return new Epic(fields[2], fields[4], Integer.parseInt(fields[0]), Status.valueOf(fields[3]));
     }
 }

@@ -20,6 +20,7 @@ public class FileBackedTaskManagerTest {
     public void beforeEach() {
         fileBackedTaskManager = new FileBackedTaskManager(new File("test.csv"));
     }
+
     @Test
     public void shouldNotCreateSubTaskIfEpicIsSameSubTask() {
         // Должно вернуться -1, так как в мапе с Epic отсутствует объект с id 1
@@ -105,7 +106,7 @@ public class FileBackedTaskManagerTest {
         fileBackedTaskManager.getTaskById(taskId);
         fileBackedTaskManager.getTasks();
 
-        Assertions.assertEquals(1,fileBackedTaskManager.getHistory().size());
+        Assertions.assertEquals(1, fileBackedTaskManager.getHistory().size());
         Assertions.assertEquals(task, fileBackedTaskManager.getHistory().getFirst());
     }
 
@@ -132,8 +133,8 @@ public class FileBackedTaskManagerTest {
         Epic epic = new Epic("Описание", "Название");
         int epicId = fileBackedTaskManager.createEpic(epic);
 
-        SubTask subTask = new SubTask("Описание", "Название",epicId);
-        SubTask subTask1 = new SubTask("Описание1", "Название1",epicId);
+        SubTask subTask = new SubTask("Описание", "Название", epicId);
+        SubTask subTask1 = new SubTask("Описание1", "Название1", epicId);
         int subTaskId = fileBackedTaskManager.createSubTask(subTask);
         int subTaskId1 = fileBackedTaskManager.createSubTask(subTask1);
 
@@ -155,8 +156,8 @@ public class FileBackedTaskManagerTest {
         Epic epic = new Epic("Описание", "Название");
         int epicId = fileBackedTaskManager.createEpic(epic);
 
-        SubTask subTask = new SubTask("Описание", "Название",epicId);
-        SubTask subTask1 = new SubTask("Описание1", "Название1",epicId);
+        SubTask subTask = new SubTask("Описание", "Название", epicId);
+        SubTask subTask1 = new SubTask("Описание1", "Название1", epicId);
         int subTaskId = fileBackedTaskManager.createSubTask(subTask);
         int subTaskId1 = fileBackedTaskManager.createSubTask(subTask1);
 

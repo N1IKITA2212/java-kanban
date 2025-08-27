@@ -3,8 +3,12 @@ package manager;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import ru.practicum.manager.*;
-import ru.practicum.model.*;
+import ru.practicum.manager.InMemoryTaskManager;
+import ru.practicum.manager.TaskManager;
+import ru.practicum.model.Epic;
+import ru.practicum.model.Status;
+import ru.practicum.model.SubTask;
+import ru.practicum.model.Task;
 
 import java.util.List;
 
@@ -102,7 +106,7 @@ public class InMemoryTaskManagerTest {
         inMemoryTaskManager.getTaskById(taskId);
         inMemoryTaskManager.getTasks();
 
-        Assertions.assertEquals(1,inMemoryTaskManager.getHistory().size());
+        Assertions.assertEquals(1, inMemoryTaskManager.getHistory().size());
         Assertions.assertEquals(task, inMemoryTaskManager.getHistory().getFirst());
     }
 
@@ -129,8 +133,8 @@ public class InMemoryTaskManagerTest {
         Epic epic = new Epic("Описание", "Название");
         int epicId = inMemoryTaskManager.createEpic(epic);
 
-        SubTask subTask = new SubTask("Описание", "Название",epicId);
-        SubTask subTask1 = new SubTask("Описание1", "Название1",epicId);
+        SubTask subTask = new SubTask("Описание", "Название", epicId);
+        SubTask subTask1 = new SubTask("Описание1", "Название1", epicId);
         int subTaskId = inMemoryTaskManager.createSubTask(subTask);
         int subTaskId1 = inMemoryTaskManager.createSubTask(subTask1);
 
@@ -152,8 +156,8 @@ public class InMemoryTaskManagerTest {
         Epic epic = new Epic("Описание", "Название");
         int epicId = inMemoryTaskManager.createEpic(epic);
 
-        SubTask subTask = new SubTask("Описание", "Название",epicId);
-        SubTask subTask1 = new SubTask("Описание1", "Название1",epicId);
+        SubTask subTask = new SubTask("Описание", "Название", epicId);
+        SubTask subTask1 = new SubTask("Описание1", "Название1", epicId);
         int subTaskId = inMemoryTaskManager.createSubTask(subTask);
         int subTaskId1 = inMemoryTaskManager.createSubTask(subTask1);
 
