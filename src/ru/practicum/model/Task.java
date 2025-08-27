@@ -7,16 +7,16 @@ public class Task {
     protected String description;
     protected int id;
     protected Status status;
-    protected TaskType type = TaskType.TASK;
+    protected TaskType type;
 
     public Task(String name, String description) { // Конструктор используется при первоначальном создании задачи
         this.name = name;
         this.description = description;
+        this.type = TaskType.TASK;
     }
 
     public Task(String name, String description, int id, Status status) { // Конструктор используется при обновлении задачи
-        this.name = name;
-        this.description = description;
+        this(name, description);
         this.id = id;
         this.status = status;
     }

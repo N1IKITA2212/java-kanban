@@ -3,18 +3,17 @@ package ru.practicum.model;
 public class SubTask extends Task {
     private final int epicId;
 
-    {
-        type = TaskType.SUBTASK;
-    }
-
     public SubTask(String name, String description, int epicId) {
         super(name, description);
         this.epicId = epicId;
+        this.type = TaskType.SUBTASK;
     }
 
     public SubTask(String name, String description, int id, Status status, int epicId) {
-        super(name, description, id, status);
-        this.epicId = epicId;
+/*        super(name, description, id, status);
+        this.epicId = epicId;*/
+        this(name, description, epicId);
+        this.id = id;
     }
 
     public static SubTask fromString(String line) {
