@@ -5,7 +5,9 @@ import java.util.List;
 
 public class Epic extends Task {
     private final List<SubTask> subTasks = new ArrayList<>();
-
+    {
+        type = TaskType.EPIC;
+    }
     public List<SubTask> getSubTasks() {
         return subTasks;
     }
@@ -17,6 +19,10 @@ public class Epic extends Task {
     public Epic(String name, String description, int id) { // Конструктор для теста в Main, статус не передаем, он считается по подзадачам
         super(name, description);
         this.id = id;
+    }
+    //Конструктор для создания эпика из строки, используется в классе FileBackedTaskManager
+    private Epic(String name, String description, int id, Status status) {
+        super(name, description, id, status);
     }
 
     public void addSubTask(SubTask subTask) {
@@ -57,6 +63,11 @@ public class Epic extends Task {
 
     @Override
     public String toString() {
-        return "Это Epic!! " + super.toString() + "Все подзадачи данного Epic- " + subTasks.toString();
+        return super.toString();
+    }
+
+    public static Epic fromString(String line) {
+        String[] fields = line.split(",");
+        return new Epic(fields[2], fields[4], Integer.parseInt(fields[0]), Status.valueOf(fields[3]));
     }
 }
