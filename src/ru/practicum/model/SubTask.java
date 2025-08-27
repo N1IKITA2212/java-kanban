@@ -10,10 +10,9 @@ public class SubTask extends Task {
     }
 
     public SubTask(String name, String description, int id, Status status, int epicId) {
-/*        super(name, description, id, status);
-        this.epicId = epicId;*/
         this(name, description, epicId);
         this.id = id;
+        this.status = status;
     }
 
     public static SubTask fromString(String line) {
