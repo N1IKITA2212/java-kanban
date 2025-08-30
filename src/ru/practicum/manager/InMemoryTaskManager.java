@@ -199,20 +199,4 @@ public class InMemoryTaskManager implements TaskManager {
     public List<Task> getHistory() {
         return historyManager.getHistory();
     }
-
-    @Override
-    public boolean equals(Object o) {
-        if (o == null || getClass() != o.getClass()) return false;
-
-        InMemoryTaskManager that = (InMemoryTaskManager) o;
-        return tasks.equals(that.tasks) && subTasks.equals(that.subTasks) && epics.equals(that.epics);
-    }
-
-    @Override
-    public int hashCode() {
-        int result = tasks.hashCode();
-        result = 31 * result + subTasks.hashCode();
-        result = 31 * result + epics.hashCode();
-        return result;
-    }
 }

@@ -17,14 +17,9 @@ public class Epic extends Task {
     }
 
     //Конструктор для создания эпика из строки, используется в классе FileBackedTaskManager
-    private Epic(String name, String description, int id, Status status) {
+    public Epic(String name, String description, int id, Status status) {
         this(name, description, id);
         this.status = status;
-    }
-
-    public static Epic fromString(String line) {
-        String[] fields = line.split(",");
-        return new Epic(fields[2], fields[4], Integer.parseInt(fields[0]), Status.valueOf(fields[3]));
     }
 
     public List<SubTask> getSubTasks() {

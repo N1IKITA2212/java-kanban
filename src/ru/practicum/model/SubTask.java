@@ -15,12 +15,6 @@ public class SubTask extends Task {
         this.status = status;
     }
 
-    public static SubTask fromString(String line) {
-        String[] fields = line.split(",");
-        return new SubTask(fields[2], fields[4], Integer.parseInt(fields[0]), Status.valueOf(fields[3]),
-                Integer.parseInt(fields[5]));
-    }
-
     public int getEpicId() {
         return epicId;
     }

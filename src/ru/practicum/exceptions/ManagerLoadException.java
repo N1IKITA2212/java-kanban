@@ -1,4 +1,4 @@
-package ru.practicum.manager;
+package ru.practicum.exceptions;
 
 public class ManagerLoadException extends RuntimeException {
 

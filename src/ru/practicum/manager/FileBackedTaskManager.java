@@ -1,5 +1,7 @@
 package ru.practicum.manager;
 
+import ru.practicum.exceptions.ManagerLoadException;
+import ru.practicum.exceptions.ManagerSaveException;
 import ru.practicum.model.*;
 
 import java.io.*;
@@ -7,6 +9,7 @@ import java.nio.charset.StandardCharsets;
 
 public class FileBackedTaskManager extends InMemoryTaskManager implements TaskManager {
     private final File savedFile; //файл .csv
+    private final static String HEAD_IN_FILE = "ID,TYPE,NAME,STATUS,DESCRIPTION,EPIC";
 
     public FileBackedTaskManager(File file) { //Конструктор получает путь к файлу в виде строки
         savedFile = file;
@@ -14,6 +17,7 @@ public class FileBackedTaskManager extends InMemoryTaskManager implements TaskMa
 
     public static FileBackedTaskManager loadFromFile(File file) {
         FileBackedTaskManager fileBackedTaskManager = new FileBackedTaskManager(file);
+        int currentId = 0;
         try (BufferedReader reader = new BufferedReader(new FileReader(file, StandardCharsets.UTF_8))) {
             String line = reader.readLine(); //Здесь считывается заголовок
             while ((line = reader.readLine()) != null) {
@@ -21,20 +25,24 @@ public class FileBackedTaskManager extends InMemoryTaskManager implements TaskMa
                     continue;
                 }
                 String[] fields = line.split(",");
+                //Восстанавливаем ID менеджера
+                if (Integer.parseInt(fields[0]) > currentId) {
+                    currentId = Integer.parseInt(fields[0]);
+                }
                 TaskType type = TaskType.valueOf(fields[1]);
                 switch (type) {
                     case TASK:
-                        Task task = Task.fromString(line);
+                        Task task = FileBackedTaskManager.fromString(line);
                         fileBackedTaskManager.tasks.put(task.getId(), task);
                         break;
 
                     case EPIC:
-                        Epic epic = Epic.fromString(line);
+                        Epic epic = (Epic) FileBackedTaskManager.fromString(line);
                         fileBackedTaskManager.epics.put(epic.getId(), epic);
                         break;
 
                     case SUBTASK:
-                        SubTask subTask = SubTask.fromString(line);
+                        SubTask subTask = (SubTask) FileBackedTaskManager.fromString(line);
                         fileBackedTaskManager.subTasks.put(subTask.getId(), subTask);
                         break;
                 }
@@ -42,15 +50,19 @@ public class FileBackedTaskManager extends InMemoryTaskManager implements TaskMa
         } catch (IOException e) {
             throw new ManagerLoadException();
         }
+        fileBackedTaskManager.id = currentId;
+        // Восстанавливаем подзадачи для эпиков
+        for (SubTask subTask : fileBackedTaskManager.getSubTasks()) {
+            Epic subTaskEpic = fileBackedTaskManager.epics.get(subTask.getEpicId());
+            subTaskEpic.addSubTask(subTask);
+        }
         return fileBackedTaskManager;
     }
 
     private void save() {
         try (Writer fileWriter = new FileWriter(savedFile, StandardCharsets.UTF_8)) {
             // Первой строкой запишем заголовок типа id,type,name,status,description,epic
-            for (Fields field : Fields.values()) {
-                fileWriter.write(String.format("%s,", field.toString()));
-            }
+            fileWriter.write(HEAD_IN_FILE);
             fileWriter.write(System.lineSeparator());
             for (Task task : getTasks()) {
                 fileWriter.write(task.toString());
@@ -67,6 +79,21 @@ public class FileBackedTaskManager extends InMemoryTaskManager implements TaskMa
         } catch (IOException e) {
             throw new ManagerSaveException();
         }
+    }
+
+    private static Task fromString(String line) {
+        String[] fields = line.split(",");
+        TaskType type = TaskType.valueOf(fields[1]);
+        switch (type) {
+            case TASK:
+                return new Task(fields[2], fields[4], Integer.parseInt(fields[0]), Status.valueOf(fields[3]));
+            case EPIC:
+                return new Epic(fields[2], fields[4], Integer.parseInt(fields[0]), Status.valueOf(fields[3]));
+            case SUBTASK:
+                return new SubTask(fields[2], fields[4], Integer.parseInt(fields[0]), Status.valueOf(fields[3]),
+                        Integer.parseInt(fields[5]));
+        }
+        throw new IllegalArgumentException("Неизвестный тип задачи: " + type);
     }
 
     @Override
@@ -143,6 +170,4 @@ public class FileBackedTaskManager extends InMemoryTaskManager implements TaskMa
         super.removeEpic(epicId);
         save();
     }
-
-
 }

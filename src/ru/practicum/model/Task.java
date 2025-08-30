@@ -21,11 +21,6 @@ public class Task {
         this.status = status;
     }
 
-    public static Task fromString(String line) {
-        String[] fields = line.split(",");
-        return new Task(fields[2], fields[4], Integer.parseInt(fields[0]), Status.valueOf(fields[3]));
-    }
-
     public String getName() {
         return name;
     }
