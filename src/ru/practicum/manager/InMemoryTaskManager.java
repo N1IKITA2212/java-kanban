@@ -1,21 +1,19 @@
 package ru.practicum.manager;
 
-import ru.practicum.model.*;
+import ru.practicum.model.Epic;
+import ru.practicum.model.Status;
+import ru.practicum.model.SubTask;
+import ru.practicum.model.Task;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class InMemoryTaskManager implements TaskManager {
 
-    private final Map<Integer, Task> tasks = new HashMap<>();
-    private final Map<Integer, SubTask> subTasks = new HashMap<>();
-    private final Map<Integer, Epic> epics = new HashMap<>();
-
-    private int id = 1;
-
-    private final HistoryManager historyManager = Managers.getDefaultHistory();
+    protected final Map<Integer, Task> tasks = new HashMap<>();
+    protected final Map<Integer, SubTask> subTasks = new HashMap<>();
+    protected final Map<Integer, Epic> epics = new HashMap<>();
+    protected final HistoryManager historyManager = Managers.getDefaultHistory();
+    protected int id = 1;
 
     @Override
     public List<Task> getTasks() {
@@ -30,6 +28,21 @@ public class InMemoryTaskManager implements TaskManager {
     @Override
     public List<Epic> getEpics() {
         return new ArrayList<>(epics.values());
+    }
+
+    //Метод для получения листа всех задач в менеджере
+    public List<Task> getAllTasks() {
+        List<Task> all = new ArrayList<>();
+        all.addAll(tasks.values());
+        all.addAll(subTasks.values());
+        all.addAll(epics.values());
+        all.sort(new Comparator<Task>() {
+            @Override
+            public int compare(Task o1, Task o2) {
+                return Integer.compare(o1.getId(), o2.getId());
+            }
+        });
+        return all;
     }
 
     @Override

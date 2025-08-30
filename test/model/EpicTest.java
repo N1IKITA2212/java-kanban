@@ -3,7 +3,6 @@ package model;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import ru.practicum.model.Epic;
-import ru.practicum.model.Task;
 
 public class EpicTest {
 
