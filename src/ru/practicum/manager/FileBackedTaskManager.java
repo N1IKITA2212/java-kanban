@@ -9,7 +9,7 @@ import java.nio.charset.StandardCharsets;
 
 public class FileBackedTaskManager extends InMemoryTaskManager implements TaskManager {
     private final File savedFile; //файл .csv
-    private final static String HEAD_IN_FILE = "ID,TYPE,NAME,STATUS,DESCRIPTION,EPIC";
+    private static final String HEAD_IN_FILE = "ID,TYPE,NAME,STATUS,DESCRIPTION,EPIC";
 
     public FileBackedTaskManager(File file) { //Конструктор получает путь к файлу в виде строки
         savedFile = file;
