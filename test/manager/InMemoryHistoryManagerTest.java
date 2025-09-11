@@ -8,12 +8,15 @@ import ru.practicum.manager.InMemoryHistoryManager;
 import ru.practicum.model.Status;
 import ru.practicum.model.Task;
 
+import java.time.LocalDateTime;
+
 public class InMemoryHistoryManagerTest {
     HistoryManager inMemoryHistoryManager;
 
     @BeforeEach
     public void beforeEach() {
         inMemoryHistoryManager = new InMemoryHistoryManager();
+
     }
 
     @Test
@@ -33,8 +36,8 @@ public class InMemoryHistoryManagerTest {
 
     @Test
     public void historyShouldNotContainRepeats() {
-        Task task1 = new Task("Название", "Описание", 1, Status.NEW);
-        Task task2 = new Task("Название1", "Описание1", 2, Status.NEW);
+        Task task1 = new Task("Название", "Описание", 10, LocalDateTime.now(), 1, Status.NEW);
+        Task task2 = new Task("Название1", "Описание1", 15, LocalDateTime.now(), 2, Status.NEW);
         inMemoryHistoryManager.add(task1);
         inMemoryHistoryManager.add(task2);
         inMemoryHistoryManager.add(task1);
@@ -43,14 +46,46 @@ public class InMemoryHistoryManagerTest {
     }
 
     @Test
-    public void inMemoryHistoryManagerRemoveTask() {
-        Task task1 = new Task("Название", "Описание", 1, Status.NEW);
-        Task task2 = new Task("Название1", "Описание1", 2, Status.NEW);
+    public void inMemoryHistoryManagerRemoveTaskFromEnd() {
+        Task task1 = new Task("Название", "Описание", 10, LocalDateTime.now(), 1, Status.NEW);
+        Task task2 = new Task("Название1", "Описание1", 10, LocalDateTime.now(), 2, Status.NEW);
         inMemoryHistoryManager.add(task1);
         inMemoryHistoryManager.add(task2);
         inMemoryHistoryManager.remove(1);
 
         Assertions.assertEquals(1, inMemoryHistoryManager.getHistory().size());
         Assertions.assertEquals(task2, inMemoryHistoryManager.getHistory().getFirst());
+    }
+
+    @Test
+    public void inMemoryHistoryManagerRemoveTaskFromStart() {
+        Task task1 = new Task("Название", "Описание", 10, LocalDateTime.now(), 1, Status.NEW);
+        Task task2 = new Task("Название1", "Описание1", 10, LocalDateTime.now(), 2, Status.NEW);
+        inMemoryHistoryManager.add(task1);
+        inMemoryHistoryManager.add(task2);
+        inMemoryHistoryManager.remove(2);
+
+        Assertions.assertEquals(1, inMemoryHistoryManager.getHistory().size());
+        Assertions.assertEquals(task1, inMemoryHistoryManager.getHistory().getFirst());
+    }
+
+    @Test
+    public void inMemoryHistoryManagerRemoveTaskFromMiddle() {
+        Task task1 = new Task("Название", "Описание", 10, LocalDateTime.now(), 1, Status.NEW);
+        Task task2 = new Task("Название1", "Описание1", 10, LocalDateTime.now(), 2, Status.NEW);
+        Task task3 = new Task("Название1", "Описание1", 10, LocalDateTime.now(), 3, Status.NEW);
+        inMemoryHistoryManager.add(task1);
+        inMemoryHistoryManager.add(task2);
+        inMemoryHistoryManager.add(task3);
+        inMemoryHistoryManager.remove(3);
+
+        Assertions.assertEquals(2, inMemoryHistoryManager.getHistory().size());
+        Assertions.assertEquals(task1, inMemoryHistoryManager.getHistory().getFirst());
+        Assertions.assertEquals(task2, inMemoryHistoryManager.getHistory().getLast());
+    }
+
+    @Test
+    public void emptyHistoryTest() {
+        Assertions.assertTrue(inMemoryHistoryManager.getHistory().isEmpty());
     }
 }

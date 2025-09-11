@@ -1,10 +1,13 @@
 package ru.practicum.model;
 
+import java.time.Duration;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
 public class Epic extends Task {
     private final List<SubTask> subTasks = new ArrayList<>();
+    private LocalDateTime endTime;
 
     public Epic(String name, String description) {
         super(name, description);
@@ -29,16 +32,58 @@ public class Epic extends Task {
     public void addSubTask(SubTask subTask) {
         subTasks.add(subTask);
         updateStatus();
+        calculateStartTime();
+        calculateDuration();
+        calculateEndTime();
     }
 
     public void removeSubTask(SubTask subTask) {
         subTasks.remove(subTask);
         updateStatus();
+        calculateDuration();
+        calculateEndTime();
+        calculateStartTime();
     }
 
     public void removeAllSubtasks() {
         subTasks.clear();
         updateStatus();
+    }
+
+    // Расчет длительности эпика по длительности его подзадач
+    private void calculateDuration() {
+        this.duration = Duration.ZERO;
+        this.subTasks.forEach(subTask -> duration = duration.plus(subTask.getDuration()));
+    }
+
+    // Расчет времени начала эпика по самому раннему времени начала подзадачи
+    private void calculateStartTime() {
+        if (subTasks.isEmpty()) {
+            this.startTime = null;
+            return;
+        }
+        LocalDateTime currentTime = LocalDateTime.MAX;
+        for (SubTask subTask : subTasks) {
+            if (subTask.getStartTime().isBefore(currentTime)) {
+                currentTime = subTask.getStartTime();
+            }
+        }
+        this.startTime = currentTime;
+    }
+
+    private void calculateEndTime() {
+        LocalDateTime currentTime = LocalDateTime.MIN;
+        for (SubTask subTask : subTasks) {
+            if (subTask.getEndTime().isAfter(currentTime)) {
+                currentTime = subTask.getEndTime();
+            }
+        }
+        this.endTime = currentTime;
+    }
+
+    @Override
+    public LocalDateTime getEndTime() {
+        return this.endTime;
     }
 
     private void updateStatus() {
