@@ -28,7 +28,7 @@ public class Main {
 //        System.out.println(inMemoryTaskManager.getSubTaskById(subTaskId11));
 //        System.out.println(inMemoryTaskManager.getEpicById(epicId1));
 
-        System.out.println(inMemoryTaskManager.getPrioritizedTasks());
+//        System.out.println(inMemoryTaskManager.getPrioritizedTasks());
 
     }
 }

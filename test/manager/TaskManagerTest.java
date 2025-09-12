@@ -2,6 +2,7 @@ package manager;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
+import ru.practicum.exceptions.TaskOverlapException;
 import ru.practicum.manager.TaskManager;
 import ru.practicum.model.Epic;
 import ru.practicum.model.Status;
@@ -83,7 +84,7 @@ public abstract class TaskManagerTest<T extends TaskManager> {
 
     @Test
     public void updateTask() {
-        Task oldTask = new Task("Старая задача", "Описание");
+        Task oldTask = new Task("Старая задача", "Описание", 10, LocalDateTime.now());
         int taskId = taskManager.createTask(oldTask);
 
         Task newTask = new Task("Обновленная задача", "Описание", 10, LocalDateTime.now(), taskId, Status.IN_PROGRESS);
@@ -95,7 +96,7 @@ public abstract class TaskManagerTest<T extends TaskManager> {
 
     @Test
     public void getTaskShouldNotAddRepeatsToHistory() {
-        Task task = new Task("Название", "Описание");
+        Task task = new Task("Название", "Описание", 10, LocalDateTime.now());
         int taskId = taskManager.createTask(task);
 
         taskManager.getTaskById(taskId);
@@ -108,8 +109,8 @@ public abstract class TaskManagerTest<T extends TaskManager> {
 
     @Test
     public void removeTaskShouldRemoveTaskFromHistory() {
-        Task task = new Task("Название", "Описание");
-        Task task1 = new Task("Название1", "Описание1");
+        Task task = new Task("Название", "Описание", 10, LocalDateTime.of(2025, 12, 10, 13, 10));
+        Task task1 = new Task("Название1", "Описание1", 10, LocalDateTime.of(2024, 12, 10, 13, 10));
         int taskId = taskManager.createTask(task);
         int taskId1 = taskManager.createTask(task1);
 
@@ -129,8 +130,8 @@ public abstract class TaskManagerTest<T extends TaskManager> {
         Epic epic = new Epic("Описание", "Название");
         int epicId = taskManager.createEpic(epic);
 
-        SubTask subTask = new SubTask("Описание", "Название", 10, LocalDateTime.now(), epicId);
-        SubTask subTask1 = new SubTask("Описание1", "Название1", 15, LocalDateTime.now(), epicId);
+        SubTask subTask = new SubTask("Описание", "Название", 10, LocalDateTime.of(2025, 12, 10, 12, 10), epicId);
+        SubTask subTask1 = new SubTask("Описание1", "Название1", 15, LocalDateTime.of(2025, 12, 10, 13, 10), epicId);
         int subTaskId = taskManager.createSubTask(subTask);
         int subTaskId1 = taskManager.createSubTask(subTask1);
 
@@ -145,15 +146,15 @@ public abstract class TaskManagerTest<T extends TaskManager> {
 
     @Test
     public void getHistoryTestWithGetById() {
-        Task task = new Task("Название", "Описание");
-        Task task1 = new Task("Название1", "Описание1");
+        Task task = new Task("Название", "Описание", 10, LocalDateTime.of(2024, 12, 10, 13, 10));
+        Task task1 = new Task("Название1", "Описание1", 10, LocalDateTime.of(2025, 12, 10, 13, 10));
         int taskId = taskManager.createTask(task);
         int taskId1 = taskManager.createTask(task1);
         Epic epic = new Epic("Описание", "Название");
         int epicId = taskManager.createEpic(epic);
 
-        SubTask subTask = new SubTask("Описание", "Название", 15, LocalDateTime.now(), epicId);
-        SubTask subTask1 = new SubTask("Описание1", "Название1", 10, LocalDateTime.now(), epicId);
+        SubTask subTask = new SubTask("Описание", "Название", 15, LocalDateTime.of(2023, 12, 10, 13, 10), epicId);
+        SubTask subTask1 = new SubTask("Описание1", "Название1", 10, LocalDateTime.of(2022, 12, 10, 13, 10), epicId);
         int subTaskId = taskManager.createSubTask(subTask);
         int subTaskId1 = taskManager.createSubTask(subTask1);
 
@@ -198,8 +199,8 @@ public abstract class TaskManagerTest<T extends TaskManager> {
         Task taskIsNotOverlapping = new Task("Название", "Описание", 5, LocalDateTime.of(2025, 9, 11, 18, 43));
         int task1Id = taskManager.createTask(task1);
 
-        Assertions.assertTrue(taskManager.isTaskOverlap(taskEndTimeIsLater));
-        Assertions.assertTrue(taskManager.isTaskOverlap(taskContainsInTask1));
-        Assertions.assertFalse(taskManager.isTaskOverlap(taskIsNotOverlapping));
+        Assertions.assertThrows(TaskOverlapException.class, () -> taskManager.createTask(taskEndTimeIsLater));
+        Assertions.assertDoesNotThrow(() -> taskManager.createTask(taskIsNotOverlapping));
+        Assertions.assertThrows(TaskOverlapException.class, () -> taskManager.createTask(taskContainsInTask1));
     }
 }

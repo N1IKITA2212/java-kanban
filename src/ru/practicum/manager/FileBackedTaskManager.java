@@ -37,6 +37,7 @@ public class FileBackedTaskManager extends InMemoryTaskManager implements TaskMa
                     case TASK:
                         Task task = FileBackedTaskManager.fromString(line);
                         fileBackedTaskManager.tasks.put(task.getId(), task);
+                        fileBackedTaskManager.prioritizedTasks.add(task);
                         break;
 
                     case EPIC:
@@ -47,6 +48,7 @@ public class FileBackedTaskManager extends InMemoryTaskManager implements TaskMa
                     case SUBTASK:
                         SubTask subTask = (SubTask) FileBackedTaskManager.fromString(line);
                         fileBackedTaskManager.subTasks.put(subTask.getId(), subTask);
+                        fileBackedTaskManager.prioritizedTasks.add(subTask);
                         break;
                 }
             }
@@ -65,20 +67,15 @@ public class FileBackedTaskManager extends InMemoryTaskManager implements TaskMa
     private static Task fromString(String line) {
         String[] fields = line.split(",");
         TaskType type = TaskType.valueOf(fields[1]);
-        switch (type) {
-            case TASK:
-                return new Task(fields[2], fields[4], Long.parseLong(fields[5]), LocalDateTime.parse(fields[6], formatter),
-                        Integer.parseInt(fields[0]), Status.valueOf(fields[3]));
-            case EPIC:
-                LocalDateTime epicStart = fields[6].equals("null") ? null : LocalDateTime.parse(fields[6], formatter);
-                Epic epic = new Epic(fields[2], fields[4], Integer.parseInt(fields[0]), Status.valueOf(fields[3]));
-                epic.setStartTime(epicStart);
-                return epic;
-            case SUBTASK:
-                return new SubTask(fields[2], fields[4], Long.parseLong(fields[5]), LocalDateTime.parse(fields[6], formatter),
-                        Integer.parseInt(fields[0]), Status.valueOf(fields[3]), Integer.parseInt(fields[7]));
-        }
-        throw new IllegalArgumentException("Неизвестный тип задачи: " + type);
+        return switch (type) {
+            case TASK ->
+                    new Task(fields[2], fields[4], Long.parseLong(fields[5]), LocalDateTime.parse(fields[6], formatter),
+                            Integer.parseInt(fields[0]), Status.valueOf(fields[3]));
+            case EPIC -> new Epic(fields[2], fields[4], Integer.parseInt(fields[0]), Status.valueOf(fields[3]));
+            case SUBTASK ->
+                    new SubTask(fields[2], fields[4], Long.parseLong(fields[5]), LocalDateTime.parse(fields[6], formatter),
+                            Integer.parseInt(fields[0]), Status.valueOf(fields[3]), Integer.parseInt(fields[7]));
+        };
     }
 
     private void save() {
