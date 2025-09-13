@@ -106,10 +106,10 @@ public class InMemoryTaskManager implements TaskManager {
         if (!subTasks.containsKey(subTask.getId())) {
             return;
         }
-        subTasks.put(subTask.getId(), subTask);
         if (isTaskOverlap(subTask)) {
             throw new TaskOverlapException();
         }
+        subTasks.put(subTask.getId(), subTask);
         Epic epic = epics.get(subTask.getEpicId());
         epic.getSubTasks().remove(subTask); // Удаляем необновленную сабтаску из листа подзадач в эпике
         epic.addSubTask(subTask); // добавляем обновленную задачу в лист подзадач в эпике
@@ -206,13 +206,12 @@ public class InMemoryTaskManager implements TaskManager {
         return historyManager.getHistory();
     }
 
-
-    private TreeSet<Task> getPrioritizedTasks() {
+    @Override
+    public TreeSet<Task> getPrioritizedTasks() {
         return this.prioritizedTasks;
     }
 
     // Возвращает true если есть перекрытие задач по времени
-
     private boolean isTaskOverlap(Task task) {
         return getPrioritizedTasks().stream().filter(prioritizedTask -> task.getId() != prioritizedTask.getId())
                 .anyMatch(prioritizedTask -> (prioritizedTask.getStartTime().isBefore(task.getEndTime())) &&
