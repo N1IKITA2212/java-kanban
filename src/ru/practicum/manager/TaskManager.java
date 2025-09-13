@@ -5,6 +5,7 @@ import ru.practicum.model.SubTask;
 import ru.practicum.model.Task;
 
 import java.util.List;
+import java.util.TreeSet;
 
 public interface TaskManager {
     List<Task> getTasks();
@@ -46,5 +47,7 @@ public interface TaskManager {
 
     void deleteEpics();
 
-    List<Task> getHistory(); // Метод для получения поля HistroyManager из InMemoryTaskManage    r
+    List<Task> getHistory(); // Метод для получения поля HistroyManager из InMemoryTaskManager
+
+    TreeSet<Task> getPrioritizedTasks();
 }
