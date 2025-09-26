@@ -1,5 +1,6 @@
 package ru.practicum.manager;
 
+import ru.practicum.exceptions.NotFoundException;
 import ru.practicum.exceptions.TaskOverlapException;
 import ru.practicum.model.Epic;
 import ru.practicum.model.Status;
@@ -33,19 +34,28 @@ public class InMemoryTaskManager implements TaskManager {
     }
 
     @Override
-    public Task getTaskById(int id) {
+    public Task getTaskById(int id) throws NotFoundException {
+        if (!tasks.containsKey(id)) {
+            throw new NotFoundException();
+        }
         historyManager.add(tasks.get(id));
         return tasks.get(id);
     }
 
     @Override
-    public SubTask getSubTaskById(int id) {
+    public SubTask getSubTaskById(int id) throws NotFoundException {
+        if (!subTasks.containsKey(id)) {
+            throw new NotFoundException();
+        }
         historyManager.add(subTasks.get(id));
         return subTasks.get(id);
     }
 
     @Override
-    public Epic getEpicById(int id) {
+    public Epic getEpicById(int id) throws NotFoundException {
+        if (!epics.containsKey(id)) {
+            throw new NotFoundException();
+        }
         historyManager.add(epics.get(id));
         return epics.get(id);
     }
@@ -128,9 +138,9 @@ public class InMemoryTaskManager implements TaskManager {
     }
 
     @Override
-    public void removeTask(int taskId) {
+    public void removeTask(int taskId) throws NotFoundException {
         if (!tasks.containsKey(taskId)) {
-            return;
+            throw new NotFoundException();
         }
         prioritizedTasks.remove(tasks.get(taskId));
         tasks.remove(taskId);
@@ -138,9 +148,9 @@ public class InMemoryTaskManager implements TaskManager {
     }
 
     @Override
-    public void removeSubTask(int subTaskId) {
+    public void removeSubTask(int subTaskId) throws NotFoundException {
         if (!subTasks.containsKey(subTaskId)) {
-            return;
+            throw new NotFoundException();
         }
         int epicId = subTasks.get(subTaskId).getEpicId();
         prioritizedTasks.remove(subTasks.get(subTaskId));
@@ -150,9 +160,9 @@ public class InMemoryTaskManager implements TaskManager {
     }
 
     @Override
-    public void removeEpic(int epicId) {
+    public void removeEpic(int epicId) throws NotFoundException {
         if (!epics.containsKey(epicId)) {
-            return;
+            throw new NotFoundException();
         }
         epics.get(epicId).getSubTasks().forEach(subTask -> {
             subTasks.remove(subTask.getId());
@@ -164,9 +174,9 @@ public class InMemoryTaskManager implements TaskManager {
     }
 
     @Override
-    public List<SubTask> getSubTasksByEpic(int epicId) {
+    public List<SubTask> getSubTasksByEpic(int epicId) throws NotFoundException {
         if (!epics.containsKey(epicId)) {
-            return null;
+            throw new NotFoundException();
         }
         return epics.get(epicId).getSubTasks();
     }
@@ -213,7 +223,7 @@ public class InMemoryTaskManager implements TaskManager {
 
     // Возвращает true если есть перекрытие задач по времени
     private boolean isTaskOverlap(Task task) {
-        return getPrioritizedTasks().stream().filter(prioritizedTask -> task.getId() != prioritizedTask.getId())
+        return getPrioritizedTasks().stream().filter(prioritizedTask -> !Objects.equals(task.getId(), prioritizedTask.getId()) || task.getId() == null)
                 .anyMatch(prioritizedTask -> (prioritizedTask.getStartTime().isBefore(task.getEndTime())) &&
                         prioritizedTask.getEndTime().isAfter(task.getStartTime()));
     }
