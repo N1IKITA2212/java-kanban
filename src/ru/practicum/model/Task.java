@@ -8,7 +8,7 @@ import java.util.Objects;
 public class Task {
     protected String name;
     protected String description;
-    protected int id;
+    protected Integer id;
     protected Status status;
     protected TaskType type;
     protected Duration duration = Duration.ofMinutes(0);
@@ -51,7 +51,7 @@ public class Task {
         this.description = description;
     }
 
-    public int getId() {
+    public Integer getId() {
         return id;
     }
 
@@ -92,7 +92,7 @@ public class Task {
         if (o == null || getClass() != o.getClass()) return false;
 
         Task task = (Task) o;
-        return id == task.id;
+        return Objects.equals(id, task.id);
     }
 
     @Override
