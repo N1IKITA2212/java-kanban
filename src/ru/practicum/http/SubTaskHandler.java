@@ -3,7 +3,6 @@ package ru.practicum.http;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.sun.net.httpserver.HttpExchange;
-import com.sun.net.httpserver.HttpHandler;
 import ru.practicum.exceptions.NotFoundException;
 import ru.practicum.exceptions.TaskOverlapException;
 import ru.practicum.manager.TaskManager;
@@ -13,7 +12,7 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 
-public class SubTaskHandler extends BaseHttpHandler implements HttpHandler {
+public class SubTaskHandler extends BaseHttpHandler {
 
     public SubTaskHandler(TaskManager taskManager) {
         super(taskManager);
@@ -24,29 +23,41 @@ public class SubTaskHandler extends BaseHttpHandler implements HttpHandler {
         String[] splitPath = httpExchange.getRequestURI().getPath().split("/");
         String requestMethod = httpExchange.getRequestMethod();
         // Путь вида /subtasks
-        if (splitPath.length == 2) {
-            switch (requestMethod) {
-                case "GET":
-                    getSubTasksHandle(httpExchange);
-                    break;
-                case "POST":
-                    postCreateOrUpdateSubTaskHandle(httpExchange);
-                    break;
+        try {
+            if (splitPath.length == 2) {
+                switch (requestMethod) {
+                    case "GET":
+                        getSubTasksHandle(httpExchange);
+                        break;
+                    case "POST":
+                        postCreateOrUpdateSubTaskHandle(httpExchange);
+                        break;
+                    default:
+                        sendMethodNotAllowed(httpExchange);
+                }
+                // // Путь вида /subtasks/{id}
+            } else if (splitPath.length == 3) {
+                Integer id = parseIdOrSendBadRequest(httpExchange, splitPath[2]);
+                if (id == null) {
+                    return;
+                }
+                switch (requestMethod) {
+                    case "GET":
+                        getSubTaskByIdHandle(httpExchange, id);
+                        break;
+                    case "DELETE":
+                        deleteSubTaskHandle(httpExchange, id);
+                        break;
+                    default:
+                        sendMethodNotAllowed(httpExchange);
+                }
+            } else {
+                sendMethodNotAllowed(httpExchange);
             }
-            // // Путь вида /subtasks/{id}
-        } else if (splitPath.length == 3) {
-            Integer id = parseIdOrSendBadRequest(httpExchange, splitPath[2]);
-            if (id == null) {
-                return;
-            }
-            switch (requestMethod) {
-                case "GET":
-                    getSubTaskByIdHandle(httpExchange, id);
-                    break;
-                case "DELETE":
-                    deleteSubTaskHandle(httpExchange, id);
-                    break;
-            }
+        } catch (NotFoundException e) {
+            sendNotFound(httpExchange);
+        } finally {
+            httpExchange.close();
         }
     }
 
@@ -59,6 +70,10 @@ public class SubTaskHandler extends BaseHttpHandler implements HttpHandler {
 
     public void postCreateOrUpdateSubTaskHandle(HttpExchange httpExchange) throws IOException {
         String requestBody = new String(httpExchange.getRequestBody().readAllBytes(), StandardCharsets.UTF_8);
+        if (requestBody.isEmpty()) {
+            sendBadRequest(httpExchange);
+            return;
+        }
         JsonObject jsonObject = JsonParser.parseString(requestBody).getAsJsonObject();
         try {
             if (!jsonObject.has("id")) {
@@ -77,25 +92,13 @@ public class SubTaskHandler extends BaseHttpHandler implements HttpHandler {
     }
 
     public void getSubTaskByIdHandle(HttpExchange httpExchange, int id) throws IOException {
-        try {
-            SubTask subTask = taskManager.getSubTaskById(id);
-            String responseBody = gson.toJson(subTask);
-            sendText(httpExchange, 200, responseBody);
-        } catch (NotFoundException e) {
-            sendNotFound(httpExchange);
-        } finally {
-            httpExchange.close();
-        }
+        SubTask subTask = taskManager.getSubTaskById(id);
+        String responseBody = gson.toJson(subTask);
+        sendText(httpExchange, 200, responseBody);
     }
 
     public void deleteSubTaskHandle(HttpExchange httpExchange, int id) throws IOException {
-        try {
-            taskManager.removeSubTask(id);
-            sendText(httpExchange, 200, "Подзадача успешно удалена");
-        } catch (NotFoundException e) {
-            sendText(httpExchange, 200, "Такой подзадачи не существует, удалять нечего");
-        } finally {
-            httpExchange.close();
-        }
+        taskManager.removeSubTask(id);
+        sendText(httpExchange, 200, "Подзадача успешно удалена");
     }
 }

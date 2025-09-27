@@ -1,14 +1,13 @@
 package ru.practicum.http;
 
 import com.sun.net.httpserver.HttpExchange;
-import com.sun.net.httpserver.HttpHandler;
 import ru.practicum.manager.TaskManager;
 import ru.practicum.model.Task;
 
 import java.io.IOException;
 import java.util.List;
 
-public class HistoryHandler extends BaseHttpHandler implements HttpHandler {
+public class HistoryHandler extends BaseHttpHandler {
 
     public HistoryHandler(TaskManager taskManager) {
         super(taskManager);
@@ -22,6 +21,8 @@ public class HistoryHandler extends BaseHttpHandler implements HttpHandler {
             String responseBody = gson.toJson(history);
             sendText(httpExchange, 200, responseBody);
             httpExchange.close();
+        } else {
+            sendMethodNotAllowed(httpExchange);
         }
     }
 }

@@ -32,8 +32,11 @@ public class HttpTaskHandlerTest {
     Task task;
     Task task1;
 
+    public HttpTaskHandlerTest() throws IOException {
+    }
+
     @BeforeEach
-    public void setUp() throws IOException {
+    public void setUp() {
         manager.deleteTasks();
         manager.deleteSubTasks();
         manager.deleteEpics();

@@ -3,7 +3,6 @@ package ru.practicum.http;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.sun.net.httpserver.HttpExchange;
-import com.sun.net.httpserver.HttpHandler;
 import ru.practicum.exceptions.NotFoundException;
 import ru.practicum.exceptions.TaskOverlapException;
 import ru.practicum.manager.TaskManager;
@@ -13,7 +12,7 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 
-public class TaskHandler extends BaseHttpHandler implements HttpHandler {
+public class TaskHandler extends BaseHttpHandler {
 
 
     public TaskHandler(TaskManager taskManager) {
@@ -25,32 +24,44 @@ public class TaskHandler extends BaseHttpHandler implements HttpHandler {
         String[] splitPath = httpExchange.getRequestURI().getPath().split("/");
         String requestMethod = httpExchange.getRequestMethod();
         // путь вида: /tasks
-        if (splitPath.length == 2) {
-            switch (requestMethod) {
-                case "GET":
-                    getTasksHandle(httpExchange); // Метод getTasks (Все задачи менеджера)
-                    break;
-                case "POST":
-                    // В случае если указан id вызывается updateTask, если нет то createTask
-                    postCreateUpdateTaskHandle(httpExchange);
-                    break;
-            }
-            // Путь вида /tasks/{id}
-        } else if (splitPath.length == 3) {
-            // Если в {id} не число, то отправляем 400
-            Integer id = parseIdOrSendBadRequest(httpExchange, splitPath[2]);
-            if (id == null) {
-                return;
-            }
-            switch (requestMethod) {
-                case "GET":
-                    getTaskByIdHandle(httpExchange, id); // getTaskById
-                    break;
+        try {
+            if (splitPath.length == 2) {
+                switch (requestMethod) {
+                    case "GET":
+                        getTasksHandle(httpExchange); // Метод getTasks (Все задачи менеджера)
+                        break;
+                    case "POST":
+                        // В случае если указан id вызывается updateTask, если нет то createTask
+                        postCreateUpdateTaskHandle(httpExchange);
+                        break;
+                    default:
+                        sendMethodNotAllowed(httpExchange);
+                }
+                // Путь вида /tasks/{id}
+            } else if (splitPath.length == 3) {
+                // Если в {id} не число, то отправляем 400
+                Integer id = parseIdOrSendBadRequest(httpExchange, splitPath[2]);
+                if (id == null) {
+                    return;
+                }
+                switch (requestMethod) {
+                    case "GET":
+                        getTaskByIdHandle(httpExchange, id); // getTaskById
+                        break;
 
-                case "DELETE":
-                    deleteTaskHandle(httpExchange, id); // deleteTask (по id)
-                    break;
+                    case "DELETE":
+                        deleteTaskHandle(httpExchange, id); // deleteTask (по id)
+                        break;
+                    default:
+                        sendMethodNotAllowed(httpExchange);
+                }
+            } else {
+                sendMethodNotAllowed(httpExchange);
             }
+        } catch (NotFoundException e) {
+            sendNotFound(httpExchange);
+        } finally {
+            httpExchange.close();
         }
     }
 
@@ -63,6 +74,10 @@ public class TaskHandler extends BaseHttpHandler implements HttpHandler {
 
     public void postCreateUpdateTaskHandle(HttpExchange httpExchange) throws IOException {
         String requestBody = new String(httpExchange.getRequestBody().readAllBytes(), StandardCharsets.UTF_8);
+        if (requestBody.isEmpty()) {
+            sendBadRequest(httpExchange);
+            return;
+        }
         JsonObject jsonObject = JsonParser.parseString(requestBody).getAsJsonObject();
         try {
             if (!jsonObject.has("id")) {
@@ -81,25 +96,13 @@ public class TaskHandler extends BaseHttpHandler implements HttpHandler {
     }
 
     public void getTaskByIdHandle(HttpExchange httpExchange, int id) throws IOException {
-        try {
             Task task = taskManager.getTaskById(id);
             String responseBody = gson.toJson(task);
             sendText(httpExchange, 200, responseBody);
-        } catch (NotFoundException e) { // Если задачи нет, то отправляем 404
-            sendNotFound(httpExchange);
-        } finally {
-            httpExchange.close();
-        }
     }
 
     public void deleteTaskHandle(HttpExchange httpExchange, int id) throws IOException {
-        try {
             taskManager.removeTask(id);
             sendText(httpExchange, 200, "Задача успешно удалена");
-        } catch (NotFoundException e) {
-            sendText(httpExchange, 200, "Задачи не существует, удалять нечего");
-        } finally {
-            httpExchange.close();
-        }
     }
 }

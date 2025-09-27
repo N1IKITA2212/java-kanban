@@ -31,8 +31,11 @@ public class HttpSubTaskHandlerTest {
             .registerTypeAdapter(Duration.class, new DurationAdapter()).setPrettyPrinting();
     Gson gson = gsonBuilder.create();
 
+    public HttpSubTaskHandlerTest() throws IOException {
+    }
+
     @BeforeEach
-    public void setUp() throws IOException {
+    public void setUp() {
         manager.deleteTasks();
         manager.deleteSubTasks();
         manager.deleteEpics();

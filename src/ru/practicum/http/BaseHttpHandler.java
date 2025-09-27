@@ -3,6 +3,7 @@ package ru.practicum.http;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.sun.net.httpserver.HttpExchange;
+import com.sun.net.httpserver.HttpHandler;
 import ru.practicum.http.adapters.DurationAdapter;
 import ru.practicum.http.adapters.LocalDateTimeAdapter;
 import ru.practicum.manager.TaskManager;
@@ -13,15 +14,14 @@ import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.time.LocalDateTime;
 
-public abstract class BaseHttpHandler {
+public abstract class BaseHttpHandler implements HttpHandler {
     protected Gson gson;
     protected TaskManager taskManager;
 
     protected BaseHttpHandler(TaskManager taskManager) {
         this.taskManager = taskManager;
-        GsonBuilder gsonBuilder = new GsonBuilder().registerTypeAdapter(LocalDateTime.class, new LocalDateTimeAdapter())
-                .registerTypeAdapter(Duration.class, new DurationAdapter()).setPrettyPrinting().serializeNulls();
-        this.gson = gsonBuilder.create();
+        this.gson = new GsonBuilder().registerTypeAdapter(LocalDateTime.class, new LocalDateTimeAdapter())
+                .registerTypeAdapter(Duration.class, new DurationAdapter()).setPrettyPrinting().serializeNulls().create();
     }
 
     protected void sendText(HttpExchange httpExchange, int code, String text) throws IOException {
@@ -52,7 +52,7 @@ public abstract class BaseHttpHandler {
     }
 
     protected void sendBadRequest(HttpExchange httpExchange) throws IOException {
-        final String responseBody = "Ошибка в запросе, такого пути нет";
+        final String responseBody = "Ошибка в запросе";
         OutputStream os = httpExchange.getResponseBody();
         httpExchange.sendResponseHeaders(400, 0);
         os.write(responseBody.getBytes(StandardCharsets.UTF_8));
@@ -67,5 +67,13 @@ public abstract class BaseHttpHandler {
             sendBadRequest(httpExchange);
             return null;
         }
+    }
+
+    protected void sendMethodNotAllowed(HttpExchange httpExchange) throws IOException {
+        final String responseBody = "Method not allowed";
+        OutputStream os = httpExchange.getResponseBody();
+        httpExchange.sendResponseHeaders(405, 0);
+        os.write(responseBody.getBytes(StandardCharsets.UTF_8));
+        os.close();
     }
 }
